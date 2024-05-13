@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Graph Visualization</title>
+    <style>
+        /* Styling for the graph container */
+        #graph-container {
+            width: 100%;
+            height: 600px;
+            border: 1px solid #ccc;
+            margin-bottom: 20px;
+        }
+    </style>
+</head>
+<body>
+    <h1>Graph Visualization</h1>
+    <form id="input-form">
+        <label for="vertices">Number of Vertices:</label>
+        <input type="number" id="vertices" name="vertices" min="1" value="5"><br><br>
+        
+        <label for="colors">Number of Colors:</label>
+        <input type="number" id="colors" name="colors" min="1" value="3"><br><br>
+        
+        <button type="button" onclick="visualizeGraph()">Visualize Graph</button>
+    </form>
+    
+    <div id="graph-container"></div>
+
+    <!-- D3.js library -->
+    <script src="https://d3js.org/d3.v7.min.js"></script>
+
+    <script>
+        function visualizeGraph() {
+            // Get user input values
+            var numVertices = parseInt(document.getElementById("vertices").value);
+            var numColors = parseInt(document.getElementById("colors").value);
+
+            // Generate random graph data
+            var graphData = generateRandomGraph(numVertices);
+
+            // Clear previous graph
+            d3.select("#graph-container").selectAll("*").remove();
+
+            // Create SVG container for the graph
+            var svg = d3.select("#graph-container")
+                        .append("svg")
+                        .attr("width", "100%")
+                        .attr("height", "100%");
+
+            // Create a force simulation
+            var simulation = d3.forceSimulation()
+                                .force("link", d3.forceLink().id(function(d) { return d.id; }))
+                                .force("charge", d3.forceManyBody().strength(-100))
+                                .force("center", d3.forceCenter(window.innerWidth / 2, 300));
+
+            // Add links to the simulation
+            var link = svg.append("g")
+                        .selectAll("line")
+                        .data(graphData.links)
+                        .enter().append("line")
+                        .attr("stroke", "#999")
+                        .attr("stroke-opacity", 0.6)
+                        .attr("stroke-width", 2);
+
+            // Add nodes to the simulation
+            var node = svg.append("g")
+                        .selectAll("circle")
+                        .data(graphData.nodes)
+                        .enter().append("circle")
+                        .attr("r", 10)
+                        .attr("fill", function(d, i) { return getColor(i, numColors); });
+
+            // Add labels to the nodes
+            var label = svg.append("g")
+                        .selectAll("text")
+                        .data(graphData.nodes)
+                        .enter().append("text")
+                        .text(function(d) { return d.id; })
+                        .attr("font-size", "12px")
+                        .attr("x", 12)
+                        .attr("y", 4);
+
+            // Add drag behavior to the nodes
+            node.call(d3.drag()
+                        .on("start", dragstarted)
+                        .on("drag", dragged)
+                        .on("end", dragended));
+
+            // Start the simulation
+            simulation.nodes(graphData.nodes).on("tick", ticked);
+            simulation.force("link").links(graphData.links);
+
+            // Function to update node positions
+            function ticked() {
+                link.attr("x1", function(d) { return d.source.x; })
+                    .attr("y1", function(d) { return d.source.y; })
+                    .attr("x2", function(d) { return d.target.x; })
+                    .attr("y2", function(d) { return d.target.y; });
+
+                node.attr("cx", function(d) { return d.x; })
+                    .attr("cy", function(d) { return d.y; });
+
+                label.attr("x", function(d) { return d.x + 12; })
+                    .attr("y", function(d) { return d.y + 4; });
+            }
+        }
+
+        // Function to generate random graph data
+        function generateRandomGraph(numVertices) {
+            var nodes = [];
+            var links = [];
+            for (var i = 0; i < numVertices; i++) {
+                nodes.push({ id: i });
+                // Generate random links between nodes
+                for (var j = 0; j < i; j++) {
+                    if (Math.random() < 0.2) {
+                        links.push({ source: j, target: i });
+                    }
+                }
+            }
+            return { nodes: nodes, links: links };
+        }
+
+        // Function to generate colors
+        function getColor(index, numColors) {
+            var hue = (index * 360 / numColors) % 360;
+            return "hsl(" + hue + ", 70%, 50%)";
+        }
+
+        // Drag functions
+        function dragstarted(event, d) {
+            if (!event.active) simulation.alphaTarget(0.3).restart();
+            d.fx = d.x;
+            d.fy = d.y;
+        }
+
+        function dragged(event, d) {
+            d.fx = event.x;
+            d.fy = event.y;
+        }
+
+        function dragended(event, d) {
+            if (!event.active) simulation.alphaTarget(0);
+            d.fx = null;
+            d.fy = null;
+        }
+    </script>
+</body>
+</html>

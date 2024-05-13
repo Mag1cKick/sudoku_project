@@ -1,10 +1,11 @@
+import random
 from graphviz import Source
 
 class Graph:
     def __init__(self, num_vertices):
         self.num_vertices = num_vertices
         self.adjacency_matrix = [[0 for _ in range(num_vertices)] for _ in range(num_vertices)]
-        self.node_colors = [0] * num_vertices
+        self.node_colors = [None] * num_vertices
 
     def add_edge(self, src, dest):
         self.adjacency_matrix[src][dest] = 1
@@ -14,7 +15,7 @@ class Graph:
         dot_string = "graph G {\n"
         for i in range(self.num_vertices):
             if self.node_colors[i]:
-                dot_string += f"    {i} [color={self.node_colors[i]}];\n"
+                dot_string += f"    {i} [fillcolor=\"{self.node_colors[i]}\", style=filled];\n"
 
         for i in range(self.num_vertices):
             for j in range(i + 1, self.num_vertices):
@@ -23,43 +24,41 @@ class Graph:
         dot_string += "}\n"
         return dot_string
 
-    def color_graph(self, num_colors, vertex=0):
-        if vertex == self.num_vertices:
+    def color_graph(self):
+        colors = [-1] * self.num_vertices
+
+        def is_safe(vertex, color):
+            for i in range(self.num_vertices):
+                if self.adjacency_matrix[vertex][i] == 1 and colors[i] == color:
+                    return False
             return True
 
-        for color in range(1, num_colors + 1):
-            if self.is_safe(vertex, color):
-                self.node_colors[vertex] = color
-                if self.color_graph(num_colors, vertex + 1):
-                    return True
-                self.node_colors[vertex] = 0
+        def get_available_color(vertex):
+            for color in range(self.num_vertices):
+                if is_safe(vertex, color):
+                    return color
 
-        return False
+        for vertex in range(self.num_vertices):
+            colors[vertex] = get_available_color(vertex)
 
-    def is_safe(self, v, color):
-        for i in range(self.num_vertices):
-            if self.adjacency_matrix[v][i] == 1 and self.node_colors[i] == color:
-                return False
-        return True
+        # Assign colors to nodes
+        available_colors = ['#' + ''.join([random.choice('0123456789ABCDEF') for _ in range(6)]) for _ in range(self.num_vertices)]
+        for vertex, color_index in enumerate(colors):
+            color = available_colors[color_index]
+            self.node_colors[vertex] = color
 
+# Example usage
+num_vertices = 5
+graph = Graph(num_vertices)
+graph.add_edge(0, 1)
+graph.add_edge(0, 2)
+graph.add_edge(1, 2)
+graph.add_edge(1, 3)
+graph.add_edge(2, 3)
+graph.add_edge(3, 4)
 
+graph.color_graph()
 
-if __name__ == "__main__":
-    
-
-    # Instantiate the graph
-    graph = Graph(5)  # Example: Creating a graph with 5 vertices
-    graph.add_edge(0, 1)
-    graph.add_edge(0, 2)
-    graph.add_edge(1, 2)
-    graph.add_edge(1, 3)
-    graph.add_edge(2, 4)
-
-    # Color the graph with 3 colors
-    graph.color_graph(3)
-
-    # Generate the DOT representation
-    dot_representation = graph.to_dot()
-
-    # Visualize the graph
-    Source(dot_representation)
+dot_source = graph.to_dot()
+graphviz_source = Source(dot_source)
+graphviz_source.view()
