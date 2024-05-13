@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Maze Solver</title>
+<style>
+    button {
+        width: 30px;
+        height: 30px;
+        border: 1px solid black;
+        background-color: white;
+    }
+</style>
+</head>
+<body>
+<h1>Maze Solver</h1>
+<div id="maze"></div><br>
+<button id="startBtn" onclick="setStart()">Set Start</button>
+<button id="endBtn" onclick="setEnd()">Set End</button>
+<button onclick="solveMaze()">Solve Maze</button>
+<p id="mazeStatus"></p>
+
+<script>
+    const mazeSize = 17;
+    let maze = [];
+    let startSet = false;
+    let endSet = false;
+    let startCoords = null;
+    let endCoords = null;
+    let savedColors = {}; // Object to store colors of unlocked cells
+
+    function createMaze() {
+        const mazeContainer = document.getElementById("maze");
+        mazeContainer.innerHTML = "";
+
+        for (let i = 0; i < mazeSize; i++) {
+            maze.push([]);
+            for (let j = 0; j < mazeSize; j++) {
+                const button = document.createElement("button");
+                button.dataset.row = i;
+                button.dataset.col = j;
+                button.addEventListener("click", toggleCell);
+                mazeContainer.appendChild(button);
+
+                if (i === 0 || i === mazeSize - 1 || j === 0 || j === mazeSize - 1) {
+                    button.style.backgroundColor = "black"; // Set outer border as black
+                    button.disabled = true; // Lock outer border
+                    maze[i].push(1); // Mark as wall
+                } else {
+                    maze[i].push(0); // Initialize cell as free space
+                }
+            }
+            mazeContainer.appendChild(document.createElement("br"));
+        }
+    }
+
+    function toggleCell(event) {
+        const row = parseInt(event.target.dataset.row);
+        const col = parseInt(event.target.dataset.col);
+
+        // Check if start or end point is set
+        if (startSet || endSet) {
+            const button = event.target;
+            const isStart = startSet;
+            const isEnd = endSet;
+
+            if (isStart) {
+                if (startCoords) {
+                    const prevStartButton = document.querySelector(`button[data-row="${startCoords.row}"][data-col="${startCoords.col}"]`);
+                    prevStartButton.style.backgroundColor = savedColors[`${startCoords.row}-${startCoords.col}`] || "white"; // Restore previous color
+                }
+                setPoint(row, col, "green"); // Set color to green (start)
+                startCoords = { row, col }; // Save start coordinates
+                startSet = false; // Reset start flag
+                document.getElementById("startBtn").disabled = false; // Enable start button
+            } else if (isEnd) {
+                if (endCoords) {
+                    const prevEndButton = document.querySelector(`button[data-row="${endCoords.row}"][data-col="${endCoords.col}"]`);
+                    prevEndButton.style.backgroundColor = savedColors[`${endCoords.row}-${endCoords.col}`] || "white"; // Restore previous color
+                }
+                setPoint(row, col, "red"); // Set color to red (end)
+                endCoords = { row, col }; // Save end coordinates
+                endSet = false; // Reset end flag
+                document.getElementById("endBtn").disabled = false; // Enable end button
+            }
+        } else {
+            // Toggle cell color if not setting start/end point
+            const button = event.target;
+            if (maze[row][col] === 0) {
+                savedColors[`${row}-${col}`] = button.style.backgroundColor; // Save color before changing
+                button.style.backgroundColor = "black"; // Set as wall
+                maze[row][col] = 1;
+            } else {
+                button.style.backgroundColor = savedColors[`${row}-${col}`] || "white"; // Restore saved color or set as free space
+                delete savedColors[`${row}-${col}`]; // Remove saved color from object
+                maze[row][col] = 0; // Update maze array
+            }
+        }
+    }
+
+    function setStart() {
+        startSet = true;
+        document.getElementById("startBtn").disabled = true;
+        alert("Click on a cell to set the start point.");
+    }
+
+    function setEnd() {
+        endSet = true;
+        document.getElementById("endBtn").disabled = true;
+        alert("Click on a cell to set the end point.");
+    }
+
+    function setPoint(row, col, color) {
+        const button = document.querySelector(`button[data-row="${row}"][data-col="${col}"]`);
+        button.style.backgroundColor = color;
+        button.disabled = true
+    }
+
+    function solveMaze() {
+        if (startCoords && endCoords) {
+            alert(`Start point: (${startCoords.row}, ${startCoords.col})\nEnd point: (${endCoords.row}, ${endCoords.col})`);
+        } else {
+            alert("Please set both start and end points.");
+        }
+    }
+
+    createMaze(); // Initialize maze grid
+</script>
+</body>
+</html>
