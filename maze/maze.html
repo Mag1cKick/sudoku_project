@@ -125,6 +125,18 @@
         }
     }
 
+    fetch("/maze_solver")
+        .then(response => response.json)
+        .then(data => {
+            console.log(data);
+            alert(data)
+        })
+
+        .catch(error => {
+            console.error("Error:", error)
+        });
+    
+    
     createMaze(); // Initialize maze grid
 </script>
 </body>
