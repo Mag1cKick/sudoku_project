@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Crossword Solver</title>
+</head>
+<body>
+    <h1>Crossword Solver</h1>
+    <form action="/solve" method="post" id="crosswordForm">
+        <label for="grid">Grid:</label><br>
+        <textarea id="grid" name="grid" rows="10" cols="50"></textarea><br>
+        <div id="wordsContainer">
+            <label for="words">Words:</label><br>
+            <input type="text" name="words"><br>
+        </div>
+        <button type="button" onclick="addWordField()">Add Another Word</button><br>
+        <input type="submit" value="Submit">
+    </form>
+
+    <script>
+        function addWordField() {
+            var container = document.getElementById("wordsContainer");
+            var input = document.createElement("input");
+            input.type = "text";
+            input.name = "words";
+            container.appendChild(input);
+            container.appendChild(document.createElement("br"));
+        }
+    </script>
+</body>
+</html>
