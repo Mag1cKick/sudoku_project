@@ -11,6 +11,14 @@ class Graph:
         self.adjacency_matrix[src][dest] = 1
         self.adjacency_matrix[dest][src] = 1
 
+    def add_random_edges(self, num_edges):
+        for _ in range(num_edges):
+            src = random.randint(0, self.num_vertices - 1)
+            dest = random.randint(0, self.num_vertices - 1)
+            while src == dest or self.adjacency_matrix[src][dest] == 1:
+                dest = random.randint(0, self.num_vertices - 1)
+            self.add_edge(src, dest)
+
     def to_dot(self):
         dot_string = "graph G {\n"
         for i in range(self.num_vertices):
@@ -49,16 +57,14 @@ class Graph:
 
 # Example usage
 num_vertices = 5
+num_edges = 5
 graph = Graph(num_vertices)
-graph.add_edge(0, 1)
-graph.add_edge(0, 2)
-graph.add_edge(1, 2)
-graph.add_edge(1, 3)
-graph.add_edge(2, 3)
-graph.add_edge(3, 4)
+graph.add_random_edges(num_edges)
 
 graph.color_graph()
 
 dot_source = graph.to_dot()
 graphviz_source = Source(dot_source)
-graphviz_source.view()
+# Specify file name to save the image
+file_name = "./coloring/colored_graph"
+graphviz_source.render(file_name, format='png', cleanup=True)
