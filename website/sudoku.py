@@ -43,16 +43,6 @@ def is_safe(board, row, col, num):
                 return False
     return True
 
-# @sudoku.route('/board', methods=['POST', 'GET'])
-# def board():
-#     sudoku_data = {}
-#     for i in range(1, 82):
-#         cell_id = 'c' + str(i)
-#         cell_value = request.form.get(cell_id)
-#         print(cell_value)
-#         sudoku_data[cell_id] = cell_value
-#     # print(jsonify(sudoku_data))
-#     return jsonify(sudoku_data)
 
 
 
@@ -88,10 +78,11 @@ def new_board():
     for i in range(0, len(boardik), 9):
         board.append(boardik[i:i+9])
     if solve_sudoku(board):
-        print(board[0][0])
-        return render_template('sud_res.html', b=board)
+        # print(board[0][0])
+        return render_template('sud_res.html', board=board)
     else:
         print("No solution exists")
+    return render_template('sud_res.html', board=board)
 # Приклад використання
 # board = [
 #     [5, 3, 0, 0, 7, 0, 0, 0, 0],
