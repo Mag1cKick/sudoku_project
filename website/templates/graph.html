@@ -7,37 +7,43 @@
 </head>
 <body>
     <h1>Graph Visualization</h1>
-    <form id="input-form" action="/" method="post" onsubmit="event.preventDefault(); visualizeGraph();">
+    <form id="input-form" onsubmit="event.preventDefault(); visualizeGraph();">
         <label for="num_vertices">Number of Vertices:</label>
         <input type="number" id="num_vertices" name="num_vertices" min="1" value="5"><br><br>
 
         <label for="num_edges">Number of Edges:</label>
         <input type="number" id="num_edges" name="num_edges" min="1" value="5"><br><br>
         
-        <button type="submit" action="/visualize">Visualize Graph</button>
+        <button type="submit">Visualize Graph</button>
     </form> 
     
     <div id="graph-container" style="display:none;">
-        <img id="graph-image" src="./colored_graph.png" alt="Graph Visualization">
+        <img id="graph-image" src="" alt="Graph Visualization">
     </div>
 
     <script>
         function visualizeGraph() {
             var numVertices = document.getElementById("num_vertices").value;
             var numEdges = document.getElementById("num_edges").value;
-            
-            console.log("Number of Vertices:", numVertices);
-            console.log("Number of Edges:", numEdges);
 
-            var graphContainer = document.getElementById("graph-container");
+            var formData = new FormData();
+            formData.append('num_vertices', numVertices);
+            formData.append('num_edges', numEdges);
 
-            if (graphContainer.style.display === "none") {
-                // If the graph container is hidden, reveal it
-                graphContainer.style.display = "block";
-            } else {
-                // If the graph container is visible, hide it
-                graphContainer.style.display = "none";
-            }
+            fetch('/path/to/python/script.py', {
+                method: 'POST',
+                body: formData
+            })
+            .then(response => response.text())
+            .then(data => {
+                // Display the graph image returned by the Python script
+                var graphImage = document.getElementById("graph-image");
+                graphImage.src = data;
+
+                var graphContainer = document.getElementById("graph-container");
+                graphContainer.style.display = "block"; // Show the graph container
+            })
+            .catch(error => console.error('Error:', error));
         }
     </script>
 </body>

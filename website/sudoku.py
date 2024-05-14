@@ -329,12 +329,17 @@ class Graph:
 
 @sudoku.route('/visualize', methods=['POST', 'GET'])
 def visualize():
-    num_vertices = request.form['num_vertices']
-    num_edges = request.form['num_edges']
-    graph = Graph(num_vertices)
-    graph.add_random_edges(num_edges)
-    graph.color_graph()
-    dot_source = graph.to_dot()
-    graphviz_source = Source(dot_source)
-    file_name = "/coloring/colored_graph"
-    graphviz_source.render(file_name, format='png', cleanup=True)
+    if request.method == 'POST':
+        num_vertices = int(request.form['num_vertices'])
+        num_edges = int(request.form['num_edges'])
+
+        graph = Graph(num_vertices)
+        graph.add_random_edges(num_edges)
+        graph.color_graph()
+        dot_source = graph.to_dot()
+        graphviz_source = Source(dot_source)
+        file_name = f".website/static/colored_graph"
+        graphviz_source.render(file_name, format='png', cleanup=True)
+        return render_template('graph_res.html')
+
+    return render_template('graph.html')
