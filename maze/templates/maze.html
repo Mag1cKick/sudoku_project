@@ -10,15 +10,29 @@
         height: 30px;
         border: 1px solid black;
         background-color: white;
+    };
+    .action_button {
+        width: 100px;
+        height: 30px;
+        background-color: gray;
+    }
+
+    button.action_button {
+        width: auto;
+        height: auto;
+        border: none;
+        background-color: gray;
+        padding: 5px 10px;
     }
 </style>
 </head>
 <body>
 <h1>Maze Solver</h1>
 <div id="maze"></div><br>
-<button id="startBtn" onclick="setStart()">Set Start</button>
-<button id="endBtn" onclick="setEnd()">Set End</button>
-<button onclick="solveMaze()">Solve Maze</button>
+<button id="startBtn" class="action_button" onclick="setStart()">Set Start</button>
+<button id="endBtn" class="action_button" onclick="setEnd()">Set End</button>
+<button class="action_button" onclick="solveMaze()">Solve Maze</button>
+<button class="action_button" onclick="clearMaze(), createMaze()">Clear Maze</button>
 <p id="mazeStatus"></p>
 
 <script>
@@ -30,6 +44,10 @@
     let endCoords = null;
     let savedColors = {}; // Object to store colors of unlocked cells
 
+    function clearMaze() {
+        maze = []
+    }
+
     function createMaze() {
         const mazeContainer = document.getElementById("maze");
         mazeContainer.innerHTML = "";
@@ -40,6 +58,7 @@
                 const button = document.createElement("button");
                 button.dataset.row = i;
                 button.dataset.col = j;
+                button.id = `cell-${i}-${j}`;
                 button.addEventListener("click", toggleCell);
                 mazeContainer.appendChild(button);
 
@@ -54,6 +73,7 @@
             mazeContainer.appendChild(document.createElement("br"));
         }
     }
+
 
     function toggleCell(event) {
         const row = parseInt(event.target.dataset.row);
@@ -103,13 +123,11 @@
     function setStart() {
         startSet = true;
         document.getElementById("startBtn").disabled = true;
-        alert("Click on a cell to set the start point.");
     }
 
     function setEnd() {
         endSet = true;
         document.getElementById("endBtn").disabled = true;
-        alert("Click on a cell to set the end point.");
     }
 
     function setPoint(row, col, color) {
@@ -119,39 +137,62 @@
     }
 
     function solveMaze() {
-    if (startCoords && endCoords) {
-        const data = {
-            maze: maze,
-            startCoords: startCoords,
-            endCoords: endCoords
-        };
+        if (startCoords && endCoords) {
+            const data = {
+                maze: maze,
+                startCoords: startCoords,
+                endCoords: endCoords
+            };
 
-        fetch('/maze_solver', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify(data)
-        })
-        .then(response => response.json())
-        .then(data => {
-            console.log('Response from Flask:', data);
-            if (data.new_maze) {
+            fetch('/maze_solver', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(data)
+            })
+            .then(response => response.json())
+            .then(data => {
+                console.log('Response from Flask:', data[0], data[1]);
                 // Update the maze variable with the new maze data
-                maze = data.new_maze;
-                console.log('Updated maze:', maze);
+
+                console.log('Updated maze:', data[1]['new_maze']);
 
                 // Optionally, you can update the maze display on the webpage
-                // updateMazeDisplay();
-            }
-            // Handle the response from Flask if needed
-        })
-        .catch(error => {
-            console.error('Error sending data to Flask:', error);
-        });
-    } else {
-        alert("Please set both start and end points.");
+                updateMazeDisplay(data[1]['new_maze']);
+                // Handle the response from Flask if needed
+            })
+            .catch(error => {
+                console.error('Error sending data to Flask:', error);
+            });
+        } else {
+            alert("Please set both start and end points.");
+        }
     }
+
+    function updateMazeDisplay(newMaze) {
+        console.log("UpdateMaze initiated, maze:", newMaze)
+
+        // Loop through the new maze data and recreate the maze grid
+        for (let i = 0; i < newMaze.length; i++) {
+            for (let j = 0; j < newMaze[i].length; j++) {
+                const button = document.getElementById(`cell-${i}-${j}`);
+
+                // Set button color based on maze data (0: free space, 1: wall, 2: start, 3: end)
+                if (newMaze[i][j] === 1) {
+                    button.style.backgroundColor = "black"; // Set as wall
+                } else if (newMaze[i][j] === 2) {
+                    button.style.backgroundColor = "red"; // Set as end
+                } else if (newMaze[i][j] === 3) {
+                    button.style.backgroundColor = "grey";
+                } else if (newMaze[i][j] === 4) {
+                    button.style.backgroundColor = "#c0c0c0"; // Set as backtrack
+                } else {
+                    button.style.backgroundColor = "white"; // Set as free space
+                }
+
+            }
+        }
     }
     
     
