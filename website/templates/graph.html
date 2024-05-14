@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Graph Visualization</title>
+</head>
+<body>
+    <h1>Graph Visualization</h1>
+    <form id="input-form" action="/" method="post" onsubmit="event.preventDefault(); visualizeGraph();">
+        <label for="num_vertices">Number of Vertices:</label>
+        <input type="number" id="num_vertices" name="num_vertices" min="1" value="5"><br><br>
+
+        <label for="num_edges">Number of Edges:</label>
+        <input type="number" id="num_edges" name="num_edges" min="1" value="5"><br><br>
+        
+        <button type="submit" action="/visualize">Visualize Graph</button>
+    </form> 
+    
+    <div id="graph-container" style="display:none;">
+        <img id="graph-image" src="./colored_graph.png" alt="Graph Visualization">
+    </div>
+
+    <script>
+        function visualizeGraph() {
+            var numVertices = document.getElementById("num_vertices").value;
+            var numEdges = document.getElementById("num_edges").value;
+            
+            console.log("Number of Vertices:", numVertices);
+            console.log("Number of Edges:", numEdges);
+
+            var graphContainer = document.getElementById("graph-container");
+
+            if (graphContainer.style.display === "none") {
+                // If the graph container is hidden, reveal it
+                graphContainer.style.display = "block";
+            } else {
+                // If the graph container is visible, hide it
+                graphContainer.style.display = "none";
+            }
+        }
+    </script>
+</body>
+</html>

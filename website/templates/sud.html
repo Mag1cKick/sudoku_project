@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sudoku Game</title>
+    <link rel="stylesheet" href="static/styles.css">
+</head>
+<body>
+    <div class="container">
+        <div class="sudoku-board">
+            <!-- Here we'll generate the Sudoku grid dynamically using JavaScript -->
+        </div>
+        <button id="solveButton">Solve Sudoku</button>
+    </div>
+
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script>
+        $(document).ready(function() {
+            // Generate Sudoku grid
+            var sudokuBoard = $('.sudoku-board');
+            for (var i = 0; i < 9; i++) {
+                for (var j = 0; j < 9; j++) {
+                    var cell = $('<div class="sudoku-cell"><input type="number" min="1" max="9"></div>');
+                    sudokuBoard.append(cell);
+                }
+            }
+
+            // AJAX request to Flask on button click
+            $('#solveButton').on('click', function() {
+                var sudokuData = [];
+                $('.sudoku-cell input').each(function() {
+                    sudokuData.push($(this).val() || '0');
+                });
+
+                $.ajax({
+                    type: 'POST',
+                    contentType: 'application/json',
+                    data: JSON.stringify({'sudoku_data': sudokuData}),
+                    url: '/solve_sudoku',
+                    success: function(response) {
+                        // Handle response from Flask
+                        console.log(response);
+                    },
+                    error: function(error) {
+                        console.log(error);
+                    }
+                });
+            });
+        });
+    </script>
+</body>
+</html>
