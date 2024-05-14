@@ -153,14 +153,17 @@
             })
             .then(response => response.json())
             .then(data => {
-                console.log('Response from Flask:', data[0], data[1]);
-                // Update the maze variable with the new maze data
+                if (data.length == 2)  {
 
-                console.log('Updated maze:', data[1]['new_maze']);
+                    console.log('Updated maze:', data[1]['new_maze']);
 
-                // Optionally, you can update the maze display on the webpage
-                updateMazeDisplay(data[1]['new_maze']);
-                // Handle the response from Flask if needed
+                    updateMazeDisplay(data[1]['new_maze']);
+                }
+
+                else {
+                    alert("There is no solution!")
+                }
+                
             })
             .catch(error => {
                 console.error('Error sending data to Flask:', error);
@@ -178,7 +181,7 @@
             for (let j = 0; j < newMaze[i].length; j++) {
                 const button = document.getElementById(`cell-${i}-${j}`);
 
-                // Set button color based on maze data (0: free space, 1: wall, 2: start, 3: end)
+                // Set button color based on maze data (0: free space, 1: wall, 2: end, 3: route, 4: backtrack)
                 if (newMaze[i][j] === 1) {
                     button.style.backgroundColor = "black"; // Set as wall
                 } else if (newMaze[i][j] === 2) {
