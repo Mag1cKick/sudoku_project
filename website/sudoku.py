@@ -1,4 +1,4 @@
-from flask import Blueprint, render_template, request, jsonify, redirect, url_for
+from flask import Blueprint, render_template, request, jsonify, redirect, url_for, flash
 import random
 from graphviz import Source
 # from . import db
@@ -79,7 +79,11 @@ def new_board():
         board.append(boardik[i:i+9])
     if solve_sudoku(board):
         # print(board[0][0])
-        return render_template('sud_res.html', board=board)
+        for i in range(len(board)):
+            for j in range(len(board)):
+                board[i][j] = str(board[i][j])
+        a="\r"
+        flash(f'{a.join("".join(i) for i in board)}', category='success')
     else:
         print("No solution exists")
     return render_template('sud_res.html', board=board)
