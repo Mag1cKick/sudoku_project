@@ -1,5 +1,6 @@
 from flask import Blueprint, render_template, request, jsonify, redirect, url_for, flash
 import random
+import os
 from graphviz import Source
 # from . import db
 sudoku = Blueprint('sudoku', __name__)
@@ -43,11 +44,6 @@ def is_safe(board, row, col, num):
                 return False
     return True
 
-
-
-
-
-
 def solve_sudoku(board):
     find = find_empty_location(board)
     if not find:
@@ -78,7 +74,6 @@ def new_board():
     for i in range(0, len(boardik), 9):
         board.append(boardik[i:i+9])
     if solve_sudoku(board):
-        # print(board[0][0])
         for i in range(len(board)):
             for j in range(len(board)):
                 board[i][j] = str(board[i][j])
@@ -342,8 +337,15 @@ def visualize():
         graph.color_graph()
         dot_source = graph.to_dot()
         graphviz_source = Source(dot_source)
-        file_name = f".website/static/colored_graph"
-        graphviz_source.render(file_name, format='png', cleanup=True)
-        return render_template('graph_res.html')
 
-    return render_template('graph.html')
+        # Ensure the directory exists
+        os.makedirs(".website/static", exist_ok=True)
+
+        # Save the image with the .png extension
+        file_path = "./website/static/colored_graph"
+        graphviz_source.render(file_path, format='png', cleanup=True)
+        file_path += ".png"
+        # Pass the file path to the template for display
+        return render_template('graph_res.html', image_path=file_path)
+
+    return render_template('graph_res.html')
