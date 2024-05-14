@@ -1,5 +1,8 @@
 import random
 from graphviz import Source
+from flask import Flask, render_template, request
+
+app = Flask(__name__)
 
 class Graph:
     def __init__(self, num_vertices):
@@ -49,22 +52,18 @@ class Graph:
         for vertex in range(self.num_vertices):
             colors[vertex] = get_available_color(vertex)
 
-        # Assign colors to nodes
         available_colors = ['#' + ''.join([random.choice('0123456789ABCDEF') for _ in range(6)]) for _ in range(self.num_vertices)]
         for vertex, color_index in enumerate(colors):
             color = available_colors[color_index]
             self.node_colors[vertex] = color
 
-# Example usage
+
 num_vertices = 5
 num_edges = 5
 graph = Graph(num_vertices)
 graph.add_random_edges(num_edges)
-
 graph.color_graph()
-
 dot_source = graph.to_dot()
 graphviz_source = Source(dot_source)
-# Specify file name to save the image
 file_name = "./coloring/colored_graph"
 graphviz_source.render(file_name, format='png', cleanup=True)

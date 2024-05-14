@@ -7,24 +7,29 @@
 </head>
 <body>
     <h1>Graph Visualization</h1>
-    <form id="input-form">
-        <label for="vertices">Number of Vertices:</label>
-        <input type="number" id="vertices" name="vertices" min="1" value="5"><br><br>
+    <form id="input-form" action="/" method="post" onsubmit="event.preventDefault(); visualizeGraph();">
+        <label for="num_vertices">Number of Vertices:</label>
+        <input type="number" id="num_vertices" name="num_vertices" min="1" value="5"><br><br>
 
-        <label for="edges">Number of Edges:</label>
-        <input type="number" id="edges" name="edges" min="1" value="5"><br><br>
+        <label for="num_edges">Number of Edges:</label>
+        <input type="number" id="num_edges" name="num_edges" min="1" value="5"><br><br>
         
-        <button type="button" onclick="visualizeGraph()">Visualize Graph</button>
-    </form>
+        <button type="submit">Visualize Graph</button>
+    </form> 
     
-    <div id="graph-container">
-        <img id="graph-image" src="colored_graph.png" alt="Graph Visualization">
+    <div id="graph-container" style="display:none;">
+        <img id="graph-image" src="./colored_graph.png" alt="Graph Visualization">
     </div>
 
     <script>
         function visualizeGraph() {
+            var numVertices = document.getElementById("num_vertices").value;
+            var numEdges = document.getElementById("num_edges").value;
+            
+            console.log("Number of Vertices:", numVertices);
+            console.log("Number of Edges:", numEdges);
+
             var graphContainer = document.getElementById("graph-container");
-            var graphImage = document.getElementById("graph-image");
 
             if (graphContainer.style.display === "none") {
                 // If the graph container is hidden, reveal it
