@@ -66,14 +66,22 @@ def index():
 
 @app.route("/maze_solver", methods=["POST"])
 def solve_maze_route():
-    maze = request.json.get("maze")
-    if not maze:
-        return jsonify({"error": "No maze data provided"}), 400
+    data = request.json
+    maze_data = data["maze"]
+    start_coords = data["startCoords"]
 
-    # Call your Python maze solving function
-    is_solvable = maze_solver.exploreMaze(1, 1)
+    # Solve the maze
+    solved_maze = Maze(maze_data)
+    result = solved_maze.exploreMaze(start_coords["row"], start_coords["col"])
 
-    return jsonify({"solvable": is_solvable, "maze": maze_solver.maze})
+    if result:
+        # Maze solved
+        print(solved_maze.maze)
+        return jsonify({"message": "Maze solved successfully"}, {"new_maze": solved_maze.maze})
+
+    else:
+        # Maze cannot be solved
+        return jsonify({"message": "Maze cannot be solved"})
 
 if __name__ == "__main__":
     app.run(debug=True)

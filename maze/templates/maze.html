@@ -81,6 +81,7 @@
                 }
                 setPoint(row, col, "red"); // Set color to red (end)
                 endCoords = { row, col }; // Save end coordinates
+                maze[row][col] = 2;
                 endSet = false; // Reset end flag
                 document.getElementById("endBtn").disabled = false; // Enable end button
             }
@@ -118,23 +119,41 @@
     }
 
     function solveMaze() {
-        if (startCoords && endCoords) {
-            alert(`Start point: (${startCoords.row}, ${startCoords.col})\nEnd point: (${endCoords.row}, ${endCoords.col})`);
-        } else {
-            alert("Please set both start and end points.");
-        }
-    }
+    if (startCoords && endCoords) {
+        const data = {
+            maze: maze,
+            startCoords: startCoords,
+            endCoords: endCoords
+        };
 
-    fetch("/maze_solver")
-        .then(response => response.json)
-        .then(data => {
-            console.log(data);
-            alert(data)
+        fetch('/maze_solver', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(data)
         })
+        .then(response => response.json())
+        .then(data => {
+            console.log('Response from Flask:', data);
+            if (data.new_maze) {
+                // Update the maze variable with the new maze data
+                maze = data.new_maze;
+                console.log('Updated maze:', maze);
 
+                // Optionally, you can update the maze display on the webpage
+                // updateMazeDisplay();
+            }
+            // Handle the response from Flask if needed
+        })
         .catch(error => {
-            console.error("Error:", error)
+            console.error('Error sending data to Flask:', error);
         });
+    } else {
+        alert("Please set both start and end points.");
+    }
+    }
+    
     
     
     createMaze(); // Initialize maze grid
